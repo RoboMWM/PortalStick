@@ -1,16 +1,24 @@
-name: CI/CD
+name: CI
 
 on:
   push:
-    branches: ['**']
   pull_request:
-  release:
-    types: [published]
 
 jobs:
-  ci:
-    permissions:
-      contents: write
-    uses: MLG-Fortress/.github/.github/workflows/maven-ci.yml@master
-    with:
-      java-version: '25'
+  test:
+    name: "Test on JDK ${{ matrix.java }}"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ 25 ]
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+      - name: "Set up JDK ${{ matrix.java }}"
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: temurin
+          cache: maven
+      - name: "Test"
+        run: mvn --batch-mode verify
